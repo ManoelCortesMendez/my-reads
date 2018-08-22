@@ -18,6 +18,17 @@ class BooksApp extends React.Component {
     BooksAPI.getAll().then(myBooks => this.setState({ myBooks }))
   }
 
+  changeShelf = (book, newShelf) => {
+    const bookIndex = this.state.myBooks.indexOf(book);
+    // Copying the entire myBooks state isn't very efficient
+    // TODO: Are there more efficient ways of doing the below?
+    const myBooksCopy = this.state.myBooks;
+    myBooksCopy[bookIndex].shelf = newShelf
+    this.setState({ myBooksCopy })
+
+    BooksAPI.update(book, newShelf)
+  }
+
   render() {
     return (
 
@@ -75,7 +86,7 @@ class BooksApp extends React.Component {
                             <div className="book-top">
                               <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
                               <div className="book-shelf-changer">
-                                <select>
+                                <select value={book.shelf} onChange={event => this.changeShelf(book, event.target.value)}>
                                   <option value="move" disabled>Move to...</option>
                                   <option value="currentlyReading">Currently Reading</option>
                                   <option value="wantToRead">Want to Read</option>
@@ -107,7 +118,7 @@ class BooksApp extends React.Component {
                             <div className="book-top">
                               <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
                               <div className="book-shelf-changer">
-                                <select>
+                                <select value={book.shelf} onChange={event => this.changeShelf(book, event.target.value)}>
                                   <option value="move" disabled>Move to...</option>
                                   <option value="currentlyReading">Currently Reading</option>
                                   <option value="wantToRead">Want to Read</option>
@@ -139,7 +150,7 @@ class BooksApp extends React.Component {
                             <div className="book-top">
                               <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
                               <div className="book-shelf-changer">
-                                <select>
+                                <select value={book.shelf} onChange={event => this.changeShelf(book, event.target.value)}>
                                   <option value="move" disabled>Move to...</option>
                                   <option value="currentlyReading">Currently Reading</option>
                                   <option value="wantToRead">Want to Read</option>
