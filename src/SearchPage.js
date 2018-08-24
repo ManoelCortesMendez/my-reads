@@ -1,7 +1,57 @@
 import React from 'react'
 import coverNA from './icons/cover-na.png'
+import * as BooksAPI from './BooksAPI'
 
 class SearchPage extends React.Component {
+
+  state = {
+    query: '',
+    booksFound: []
+  }
+
+  updateQuery = query => {
+    this.setState({ query })
+    if (query !== '') {
+      this.searchBooks(query)
+    } else {
+      this.setState({ booksFound: [] })
+    }
+  }
+
+  searchBooks = query => {
+    if (query) {
+      BooksAPI.search(query).then(booksFound => {
+        if ('error' in booksFound) {
+          this.setState({ booksFound: [] })
+        } else {
+          const booksFoundWithShelf = booksFound.map(bookFound => {
+            this.props.myBooks.map(myBook => {
+              if (bookFound.id === myBook.id) {
+                bookFound.shelf = myBook.shelf
+              }
+              return bookFound
+            })
+            return bookFound
+          })
+          this.setState({ booksFound: booksFoundWithShelf })
+        }
+      })
+    } else {
+      this.setState({ booksFound: [] })
+    }
+  }
+
+  changeSearchShelf = (book, newShelf) => {
+    const bookIndex = this.state.booksFound.indexOf(book);
+    const myBooksFoundCopy = this.state.booksFound;
+    myBooksFoundCopy[bookIndex].shelf = newShelf
+    this.setState({
+      myBooksFound: myBooksFoundCopy,
+      myBooks: this.props.myBooks.concat( book )
+    })
+    BooksAPI.update(book, newShelf)
+  }
+
   render() {
     return (
       <div className="search-books">
@@ -11,8 +61,8 @@ class SearchPage extends React.Component {
             <input
               type="text"
               placeholder="Search by title or author"
-              value={this.props.query}
-              onChange={event => this.props.onUpdateQuery(event.target.value)}
+              value={this.state.query}
+              onChange={event => this.updateQuery(event.target.value)}
               />
 
           </div>
@@ -20,7 +70,7 @@ class SearchPage extends React.Component {
         <div className="search-books-results">
           <ol className="books-grid">
 
-            {this.props.booksFound
+            {this.state.booksFound
               .map((book, index) =>
               <li key={index}>
                 <div className="book">
@@ -29,7 +79,7 @@ class SearchPage extends React.Component {
                     <div className="book-shelf-changer">
                       <select
                         value={book.shelf || 'none'}
-                        onChange={event => this.props.onChangeSearchShelf(book, event.target.value)}>
+                        onChange={event => this.changeSearchShelf(book, event.target.value)}>
                         <option value="move" disabled>Move to...</option>
                         <option value="currentlyReading">Currently Reading</option>
                         <option value="wantToRead">Want to Read</option>
