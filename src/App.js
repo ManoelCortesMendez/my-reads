@@ -11,6 +11,7 @@ class BooksApp extends React.Component {
      * pages, as well as provide a good URL they can bookmark and share.
      */
     showSearchPage: false,
+    query: '',
     myBooks: [],
     booksFound: []
   }
@@ -27,14 +28,51 @@ class BooksApp extends React.Component {
     myBooksCopy[bookIndex].shelf = newShelf
     this.setState({ myBooksCopy })
 
+    this.updateRemoteShelf(book, newShelf)
+  }
+
+  changeSearchShelf = (book, newShelf) => {
+    const bookIndex = this.state.booksFound.indexOf(book);
+    // Copying the entire myBooks state isn't very efficient
+    // TODO: Are there more efficient ways of doing the below?
+    const myBooksFoundCopy = this.state.booksFound;
+    myBooksFoundCopy[bookIndex].shelf = newShelf
+    this.setState({
+      myBooksFound: myBooksFoundCopy,
+      myBooks: this.state.myBooks.concat( book )
+    })
+
+    this.updateRemoteShelf(book, newShelf)
+  }
+
+  updateQuery = query => {
+    this.setState({ query })
+    this.searchBooks(query)
+  }
+
+  updateRemoteShelf(book, newShelf) {
     BooksAPI.update(book, newShelf)
   }
 
   searchBooks = query => {
     if (query) {
-      BooksAPI.search(query).then(booksFound =>
-        this.setState( { booksFound: ('error' in booksFound) ? [] : booksFound } )
-      )
+      BooksAPI.search(query).then(booksFound => {
+        if ('error' in booksFound) {
+          this.setState({ booksFound: [] })
+        } else {
+          const booksFoundWithShelf = booksFound.map(bookFound => {
+            this.state.myBooks.map(myBook => {
+              if (bookFound.id === myBook.id) {
+                bookFound.shelf = myBook.shelf
+              }
+              return bookFound
+            })
+            return bookFound
+          })
+
+          this.setState({ booksFound: booksFoundWithShelf })
+        }
+      })
     } else {
       this.setState({ booksFound: [] })
     }
@@ -57,18 +95,11 @@ class BooksApp extends React.Component {
             <div className="search-books-bar">
               <a className="close-search" onClick={() => this.setState({ showSearchPage: false })}>Close</a>
               <div className="search-books-input-wrapper">
-                {/*
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
                 <input
                   type="text"
                   placeholder="Search by title or author"
-                  onChange={event => this.searchBooks(event.target.value)}
+                  value={this.state.query}
+                  onChange={event => this.updateQuery(event.target.value)}
                 />
 
               </div>
@@ -81,9 +112,10 @@ class BooksApp extends React.Component {
                   <li key={index}>
                     <div className="book">
                       <div className="book-top">
+                        {/*TODO: handle missing thumbnails*/}
                         <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
                         <div className="book-shelf-changer">
-                          <select value={book.shelf} onChange={event => this.changeShelf(book, event.target.value)}>
+                          <select value={book.shelf || 'none'} onChange={event => this.changeSearchShelf(book, event.target.value)}>
                             <option value="move" disabled>Move to...</option>
                             <option value="currentlyReading">Currently Reading</option>
                             <option value="wantToRead">Want to Read</option>
