@@ -1,4 +1,5 @@
 import React from 'react'
+import coverNA from './icons/cover-na.png'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
 
@@ -47,7 +48,11 @@ class BooksApp extends React.Component {
 
   updateQuery = query => {
     this.setState({ query })
-    this.searchBooks(query)
+    if (query !== '') {
+      this.searchBooks(query)
+    } else {
+      this.setState({ booksFound: [] })
+    }
   }
 
   updateRemoteShelf(book, newShelf) {
@@ -112,8 +117,7 @@ class BooksApp extends React.Component {
                   <li key={index}>
                     <div className="book">
                       <div className="book-top">
-                        {/*TODO: handle missing thumbnails*/}
-                        <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                        <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: (book.imageLinks && `url(${book.imageLinks.thumbnail})`) || `url(${coverNA})` }}></div>
                         <div className="book-shelf-changer">
                           <select value={book.shelf || 'none'} onChange={event => this.changeSearchShelf(book, event.target.value)}>
                             <option value="move" disabled>Move to...</option>
@@ -125,7 +129,10 @@ class BooksApp extends React.Component {
                         </div>
                       </div>
                       <div className="book-title">{book.title}</div>
-                      <div className="book-authors">{book.author}</div>
+                      {book.authors && book.authors.map(author =>
+                        <div className="book-authors">{author}</div>
+                      )
+                      || <div className="book-authors">Author(s) N/A</div>}
                     </div>
                   </li>
                 )}
@@ -154,7 +161,7 @@ class BooksApp extends React.Component {
                         <li key={index}>
                           <div className="book">
                             <div className="book-top">
-                              <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                              <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: (book.imageLinks && `url(${book.imageLinks.thumbnail})`) || `url(${coverNA})` }}></div>
                               <div className="book-shelf-changer">
                                 <select value={book.shelf} onChange={event => this.changeShelf(book, event.target.value)}>
                                   <option value="move" disabled>Move to...</option>
@@ -166,7 +173,10 @@ class BooksApp extends React.Component {
                               </div>
                             </div>
                             <div className="book-title">{book.title}</div>
-                            <div className="book-authors">{book.author}</div>
+                            {book.authors && book.authors.map(author =>
+                              <div className="book-authors">{author}</div>
+                            )
+                            || <div className="book-authors">N/A</div>}
                           </div>
                         </li>
                       )}
@@ -186,7 +196,7 @@ class BooksApp extends React.Component {
                         <li key={index}>
                           <div className="book">
                             <div className="book-top">
-                              <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                              <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: (book.imageLinks && `url(${book.imageLinks.thumbnail})`) || `url(${coverNA})` }}></div>
                               <div className="book-shelf-changer">
                                 <select value={book.shelf} onChange={event => this.changeShelf(book, event.target.value)}>
                                   <option value="move" disabled>Move to...</option>
@@ -198,7 +208,10 @@ class BooksApp extends React.Component {
                               </div>
                             </div>
                             <div className="book-title">{book.title}</div>
-                            <div className="book-authors">{book.author}</div>
+                            {book.authors && book.authors.map(author =>
+                              <div className="book-authors">{author}</div>
+                            )
+                            || <div className="book-authors">N/A</div>}
                           </div>
                         </li>
                       )}
@@ -218,7 +231,7 @@ class BooksApp extends React.Component {
                         <li key={index}>
                           <div className="book">
                             <div className="book-top">
-                              <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                              <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: (book.imageLinks && `url(${book.imageLinks.thumbnail})`) || `url(${coverNA})` }}></div>
                               <div className="book-shelf-changer">
                                 <select value={book.shelf} onChange={event => this.changeShelf(book, event.target.value)}>
                                   <option value="move" disabled>Move to...</option>
@@ -230,7 +243,10 @@ class BooksApp extends React.Component {
                               </div>
                             </div>
                             <div className="book-title">{book.title}</div>
-                            <div className="book-authors">{book.author}</div>
+                            {book.authors && book.authors.map(author =>
+                              <div className="book-authors">{author}</div>
+                            )
+                            || <div className="book-authors">N/A</div>}
                           </div>
                         </li>
                       )}
