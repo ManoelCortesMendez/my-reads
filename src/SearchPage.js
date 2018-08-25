@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import * as BooksAPI from './BooksAPI'
 import coverNA from './icons/cover-na.png'
 
@@ -44,7 +45,11 @@ class SearchPage extends React.Component {
     return (
       <div className="search-books">
         <div className="search-books-bar">
-          <a className="close-search" onClick={() => this.props.onCloseSearch()}>Close</a>
+          <Link
+            to='/'
+            className="close-search">
+            Close
+          </Link>
           <div className="search-books-input-wrapper">
             <input
               type="text"
