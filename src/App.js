@@ -9,23 +9,24 @@ class BooksApp extends React.Component {
 
   state = {
     shelvedBooks: [],
-    bookshelvesNames: ['Currently Reading', 'Want To Read', 'Read'],
-    atHome: false
+    bookshelvesNames: ['Currently Reading', 'Want To Read', 'Read']
   }
 
   componentDidMount = () => BooksAPI.getAll()
     .then(shelvedBooks => this.setState({ shelvedBooks }))
 
   changeShelf = (book, newShelf) => {
-    const shelvedBooksCopy = this.state.shelvedBooks
-    const bookIndex = shelvedBooksCopy.indexOf(book)
-    shelvedBooksCopy[bookIndex].shelf = newShelf
-    this.setState({ shelvedBooksCopy })
+    const newShelvedBooks = this.state.shelvedBooks.map(shelvedBook => {
+      if (shelvedBook.id === book.id) {shelvedBook.shelf = newShelf}
+      return shelvedBook
+    })
+
+    this.setState({ newShelvedBooks })
 
     BooksAPI.update(book, newShelf)
   }
 
-
+  addBook = book => this.setState({ shelvedBooks: this.state.shelvedBooks.concat(book) })
 
   render() {
     return (
@@ -34,6 +35,8 @@ class BooksApp extends React.Component {
         <Route path='/search' render={() => (
           <SearchPage
             shelvedBooks={this.state.shelvedBooks}
+            onShelfChange={this.changeShelf}
+            onBookAdd={this.addBook}
           />
         )}/>
 

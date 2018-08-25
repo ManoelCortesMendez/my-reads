@@ -16,10 +16,26 @@ class SearchPage extends React.Component {
   }
 
   changeShelf = (book, newShelf) => {
-    const searchedBooksCopy = this.state.searchedBooks
-    const bookIndex = searchedBooksCopy.indexOf(book)
-    searchedBooksCopy[bookIndex].shelf = newShelf
-    this.setState({ searchedBooks: searchedBooksCopy })
+    const newSearchedBooks = this.state.searchedBooks.map(searchedBook => {
+      if (searchedBook.id === book.id) {searchedBook.shelf = newShelf}
+      return searchedBook
+    })
+
+    let newBook = true
+    this.props.shelvedBooks.map(shelvedBook => {
+      if (shelvedBook.id === book.id) {
+        this.props.onShelfChange(shelvedBook, newShelf)
+        newBook = false
+      }
+      return null
+    })
+
+    if (newBook) {
+      book.shelf = newShelf
+      this.props.onBookAdd(book)
+    }
+
+    this.setState({ newSearchedBooks })
 
     BooksAPI.update(book, newShelf)
   }
