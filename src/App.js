@@ -5,33 +5,37 @@ import * as BooksAPI from './BooksAPI'
 import './App.css'
 
 class BooksApp extends React.Component {
-  
+
   state = {
-    myBooks: [],
+    shelvedBooks: [],
+    bookshelvesNames: ['Currently Reading', 'Want To Read', 'Read'],
     showSearchPage: false
   }
 
-  componentDidMount() {
-    BooksAPI.getAll().then(myBooks => this.setState({ myBooks }))
-  }
+  componentDidMount = () => BooksAPI.getAll()
+    .then(shelvedBooks => this.setState({ shelvedBooks }))
 
   changeShelf = (book, newShelf) => {
-    const bookIndex = this.state.myBooks.indexOf(book);
-    const myBooksCopy = this.state.myBooks;
-    myBooksCopy[bookIndex].shelf = newShelf
-    this.setState({ myBooksCopy })
+    const shelvedBooksCopy = this.state.shelvedBooks
+    const bookIndex = shelvedBooksCopy.indexOf(book)
+    shelvedBooksCopy[bookIndex].shelf = newShelf
+    this.setState({ shelvedBooksCopy })
 
     BooksAPI.update(book, newShelf)
   }
 
+  closeSearch = () => this.setState({ showSearchPage: false })
+
   render() {
     return (
-
       <div className="app">
 
+        {/* TODO: Route using react-route-dom */}
         {this.state.showSearchPage ? (
+
           <SearchPage
-            myBooks={this.state.myBooks}
+            shelvedBooks={this.state.shelvedBooks}
+            onCloseSearch={this.closeSearch}
           />
 
         ) : (
@@ -43,23 +47,16 @@ class BooksApp extends React.Component {
             <div className="list-books-content">
               <div>
 
-                <Bookshelf
-                  bookshelfName='currentlyReading'
-                  myBooks={ this.state.myBooks }
-                  onShelfChange={ this.changeShelf }
-                />
+                {this.state.bookshelvesNames.map((bookshelfName, index) => (
 
-                <Bookshelf
-                  bookshelfName='wantToRead'
-                  myBooks={ this.state.myBooks }
-                  onShelfChange={ this.changeShelf }
-                />
+                  <Bookshelf
+                    key={index}
+                    bookshelfName={bookshelfName}
+                    shelvedBooks={this.state.shelvedBooks}
+                    onShelfChange={this.changeShelf}
+                  />
 
-                <Bookshelf
-                  bookshelfName='read'
-                  myBooks={ this.state.myBooks }
-                  onShelfChange={ this.changeShelf }
-                />
+                ))}
 
               </div>
             </div>
@@ -67,6 +64,7 @@ class BooksApp extends React.Component {
               <a onClick={() => this.setState({ showSearchPage: true })}>Add a book</a>
             </div>
           </div>
+
         )}
 
       </div>
